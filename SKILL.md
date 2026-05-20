@@ -127,6 +127,7 @@ Output/
   - Flashcard mapping
 - **No invented content.** Every statement must be traceable to **quiz** or **lecture slides**.
 - Prefer explicit references in the format: `Lectures\file.pdf`, p. X (or `Exams\file.pdf`, p. X).
+- **Tree diagrams must not exceed 3 levels.** If a concept requires more depth, split it into separate diagrams.
 
 ### Quizzes.md
 - Each quiz entry should include:
@@ -147,6 +148,17 @@ Output/
   - id (unique)
   - back (answer text)
 - Keep flashcards aligned with definitions and schematics.
+- **Split deep tree diagrams into separate flashcards with only 2 levels each.**
+  Example — given a full diagram:
+  ```
+  A → {A.1 → {A.1.1, A.1.2}, A.2 → {A.2.1, A.2.2}}
+  ```
+  Produce 3 distinct flashcards:
+  ```
+  Flashcard 1: A → {A.1, A.2}
+  Flashcard 2: A.1 → {A.1.1, A.1.2}
+  Flashcard 3: A.2 → {A.2.1, A.2.2}
+  ```
 
 ## Tools and Companion Skills
 - Use **mermaid-export** to render and export diagrams.
