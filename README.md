@@ -1,6 +1,8 @@
 # Exam Schematizer Skill
 
-Workflow riutilizzabile per categorizzare e schematizzare esami e lezioni di un corso in output strutturati per capitolo: **Quiz**, **Definizioni**, **Schemi** e **Flashcard**, con riferimenti tracciabili.
+Workflow riutilizzabile per categorizzare e schematizzare esami e lezioni di un corso.  
+Il corso è diviso in **Argomenti** (topics), ciascuno contenente **Capitoli** (chapters).  
+Output strutturato per argomento: **Quiz**, **Definizioni**, **Schemi** e **Flashcard**, con riferimenti tracciabili.
 
 ---
 
@@ -13,59 +15,108 @@ graph LR
     AIAgent --> Output
 ```
 
-## Flusso Input/Output
+| Elemento | Descrizione |
+|---|---|
+| **User** | L'utente fornisce i materiali (exams, lectures) e la lista degli argomenti |
+| **Input** | Materiali grezzi: Exams, Lectures, Lista Argomenti |
+| **AI Agent** | Analizza, categorizza e produce gli output strutturati |
+| **Output** | File markdown organizzati per argomento |
+
+---
+
+## Input / Output
 
 ```mermaid
 graph LR
-    %% Sezione Input
-    Input --> Exams_In[- Exams]
+    %% Input
+    Input --> Exams[- Exams]
     Input --> Lectures[- Lectures]
-    Input --> List[- List of Chapters]
+    Input --> Argomenti[- Lista Argomenti]
 
-    %% Flusso Principale
-    Output --> Exams_Out(Exams)
+    %% Output
+    Output --> Out_Exams(Exams)
+    Out_Exams --> A1(Argomento 1)
+    Out_Exams --> A2(Argomento 2)
+    Out_Exams --> A3(Argomento 3...)
 
-    %% Sotto-capitoli
-    Exams_Out --> Ch1(Chapter 1)
-    Exams_Out --> Ch2(Chapter 2)
-    Exams_Out --> Ch3(Chapter 3)
-    Exams_Out --> Ch4(Chapter 4...)
-
-    %% File di output dal Capitolo 1
-    Ch1 --> Q[Quizzes.md]
-    Ch1 --> D[Definitions.md]
-    Ch1 --> S[Schematics.md]
-    Ch1 --> F[FlashCards.md]
+    %% File per Argomento 1
+    A1 --> Q[Quizzes.md]
+    A1 --> D[Definitions.md]
+    A1 --> S[Schematics.md]
+    A1 --> F[FlashCards.md]
 
     %% Destinazione finale
     F --> Anki((Anki))
 ```
 
-## Struttura degli Schemi (Schematics.md)
+| Elemento | Descrizione |
+|---|---|
+| **Exams** | Cartella `Input/Exams/` con i PDF degli esami |
+| **Lectures** | Cartella `Input/Lectures/` con i PDF delle lezioni |
+| **Lista Argomenti** | Elenco degli argomenti del corso fornito dall'utente in chat |
+| **Exams (Output)** | Cartella `Output/Exams/` organizzata per argomento |
+| **Argomento N** | Sottocartella per ogni argomento del corso |
+| **Quizzes.md** | Quiz tratti da esami e lezioni, con risposte e spiegazioni |
+| **Definitions.md** | Definizioni testuali tratte dalle slide delle lezioni |
+| **Schematics.md** | Schemi concettuali divisi per capitoli |
+| **FlashCards.md** | Flashcard pronte per l'esportazione su Anki |
+| **Anki** | Destinazione finale delle flashcard (tramite AnkiConnect) |
+
+---
+
+## Struttura Schematics.md
 
 ```mermaid
 graph LR
-    %% Struttura principale di Schematics.md
-    Schematics[Schematics.md] --> E1(Elemento 1)
-    Schematics --> E2(Elemento 2)
-    Schematics --> E3(Elemento 3...)
+    Schematics[Schematics.md] --> C1(Capitolo 1)
+    Schematics --> C2(Capitolo 2)
+    Schematics --> C3(Capitolo 3...)
 
-    %% Sotto-elementi dell'Elemento 1
-    E1 --> Def[Definizione]
-    E1 --> Ref[Reference]
-    E1 --> QZ[Quiz]
-    E1 --> FC[Flash card]
-
-    %% Esplosione dei campi del Quiz
-    QZ --> Title[title]
-    QZ --> Quiz_Text[quiz.]
-    QZ --> Source[Source]
-    QZ --> Answer[Answer]
-    QZ --> Expl[Explaination]
-    QZ --> Ref_Quiz[Reference]
+    C1 --> Def[Definizione]
+    C1 --> Ref[Reference]
+    C1 --> Graph[Grafico / Tabella]
+    C1 --> FC_MAP[Flashcard mapping]
 ```
 
-## Struttura dei Flashcard (Flashcards.md)
+| Elemento | Descrizione |
+|---|---|
+| **Capitolo N** | Suddivisione interna dello schema per capitoli |
+| **Definizione** | Spiegazione del concetto chiave |
+| **Reference** | Riferimento alla slide di origine (`Lectures/file.pdf`, p. X) |
+| **Grafico / Tabella** | Immagine copiata dalle slide o diagramma generato via Mermaid |
+| **Flashcard mapping** | Collegamento alle flashcard corrispondenti |
+
+---
+
+## Struttura Quizzes.md
+
+```mermaid
+graph LR
+    Quizzes[Quizzes.md] --> Q1(Quiz 1)
+    Quizzes --> Q2(Quiz 2)
+    Quizzes --> Q3(Quiz 3...)
+
+    Q1 --> Title[title]
+    Q1 --> Text[quiz.]
+    Q1 --> Source[Source]
+    Q1 --> Answer[Answer]
+    Q1 --> Expl[Explaination]
+    Q1 --> Ref[Reference]
+```
+
+| Elemento | Descrizione |
+|---|---|
+| **Quiz N** | Singolo quiz estratto da esami o lezioni |
+| **title** | Titolo del quiz |
+| **quiz.** | Testo della domanda |
+| **Source** | File di origine (esame o lezione) |
+| **Answer** | Risposta corretta |
+| **Explaination** | Spiegazione della risposta |
+| **Reference** | Pagina di riferimento |
+
+---
+
+## Struttura Flashcards.md
 
 ```mermaid
 graph LR
@@ -73,19 +124,23 @@ graph LR
     FC_MD --> FC2(Flashcard 2)
     FC_MD --> FC3(Flashcard 3...)
 
-    %% Proprieta per Flashcard 1
     FC1 --> T1[title]
     FC1 --> I1[id]
     FC1 --> B1[back]
 
-    %% Proprieta per Flashcard 2
     FC2 --> T2[title]
     FC2 --> I2[id]
     FC2 --> B2[back]
 
-    %% Stile opzionale per evidenziare il file principale
     style FC_MD fill:#f9f9f9,stroke:#333,stroke-width:2px
 ```
+
+| Elemento | Descrizione |
+|---|---|
+| **Flashcard N** | Singola carta per Anki |
+| **title** | Fronte della flashcard |
+| **id** | Identificativo univoco |
+| **back** | Retro della flashcard (risposta) |
 
 ---
 
@@ -98,14 +153,16 @@ Input/
 
 Output/
   Exams/
-    <Chapter 1>/
+    <Argomento 1>/
       Quizzes.md
       Definitions.md
       Schematics.md
       Flashcards.md
-    <Chapter 2>/
+    <Argomento 2>/
       ...
 ```
+
+---
 
 ## Dipendenze Esterne
 
