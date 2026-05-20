@@ -1,14 +1,14 @@
 ---
 name: exam-schematizer
-description: Use when the user asks to categorize/schematize exam and lecture collections into chapters, or wants a reusable workflow for Exams/Lectures to produce Quizzes, Definitions, Schematics, and Flashcards. Also use when asked to build Input/Output folder structures for a course.
+description: Use when the user asks to categorize/schematize exam and lecture collections by argomento (topic) and capitolo (chapter), or wants a reusable workflow for Exams/Lectures to produce Quizzes, Definitions, Schematics, and Flashcards. Also use when asked to build Input/Output folder structures for a course.
 ---
 
 # Exam Schematizer Skill
 
-Create a repeatable workflow to categorize and schematize a generic course’s exams and lectures into structured chapter outputs (Quizzes, Definitions, Schematics, Flashcards), with traceable references to quizzes or lecture slides.
+Create a repeatable workflow to categorize and schematize a generic course’s exams and lectures. The course is divided into **Argomenti** (topics), each containing **Capitoli** (chapters). Output is structured per chapter (Quizzes, Definitions, Schematics, Flashcards), with traceable references to quizzes or lecture slides.
 
 ## When to Use
-- User asks to organize exam/lecture collections into chapters.
+- User asks to organize exam/lecture collections first by argomento, then by capitolo.
 - User wants a reusable workflow like the one in this project.
 - User asks for a skill to create Inputs/Outputs, maps, or flashcards.
 
@@ -26,22 +26,26 @@ graph LR
     %% Sezione Input
     Input --> Exams_In[- Exams]
     Input --> Lectures[- Lectures]
-    Input --> List[- List of Chapters]
+    Input --> List[- Argomenti + Capitoli]
 
     %% Flusso Principale
     Output --> Exams_Out(Exams)
 
-    %% Sotto-capitoli
-    Exams_Out --> Ch1(Chapter 1)
-    Exams_Out --> Ch2(Chapter 2)
-    Exams_Out --> Ch3(Chapter 3)
-    Exams_Out --> Ch4(Chapter 4...)
+    %% Argomenti e relativi Capitoli
+    Exams_Out --> A1(Argomento 1)
+    A1 --> C1_1(Capitolo 1.1)
+    A1 --> C1_2(Capitolo 1.2)
+    A1 --> C1_3(Capitolo 1.3...)
 
-    %% File di output dal Capitolo 1
-    Ch1 --> Q[Quizzes.md]
-    Ch1 --> D[Definitions.md]
-    Ch1 --> S[Schematics.md]
-    Ch1 --> F[FlashCards.md]
+    Exams_Out --> A2(Argomento 2)
+    A2 --> C2_1(Capitolo 2.1)
+    A2 --> C2_2(Capitolo 2.2...)
+
+    %% File di output per ogni capitolo
+    C1_1 --> Q[Quizzes.md]
+    C1_1 --> D[Definitions.md]
+    C1_1 --> S[Schematics.md]
+    C1_1 --> F[FlashCards.md]
 
     %% Destinazione finale
     F --> Anki((Anki))
@@ -92,8 +96,9 @@ graph LR
 ## First Run Behavior
 1. Create empty folders `Input/` and `Output/` in the project root.
 2. Ask the user to fill `Input/Exams/` and `Input/Lectures/`.
-3. Ask the user for the **List of Chapters** (text list via chat).
-4. Only proceed after the list of chapters is provided.
+3. Ask the user for the **course structure**: a list of **Argomenti** (topics), each containing its **Capitoli** (chapters).
+   - Example: `Argomento 1: Capitolo 1.1, Capitolo 1.2 | Argomento 2: Capitolo 2.1, Capitolo 2.2`
+4. Only proceed after the course structure is provided.
 
 ## Input/Output Structures
 
@@ -108,13 +113,17 @@ Input/
 ```
 Output/
   Exams/
-    <Chapter 1>/
-      Quizzes.md
-      Definitions.md
-      Schematics.md
-      Flashcards.md
-    <Chapter 2>/
-      ...
+    <Argomento 1>/
+      <Capitolo 1.1>/
+        Quizzes.md
+        Definitions.md
+        Schematics.md
+        Flashcards.md
+      <Capitolo 1.2>/
+        ...
+    <Argomento 2>/
+      <Capitolo 2.1>/
+        ...
 ```
 
 ## File Content Rules
@@ -162,29 +171,32 @@ Output/
 
 ## Progress Tracking Checklist
 
-Maintain a progress checklist in the project root (`Progress.md`) with two levels:
+The course is structured as: **Corso → Argomenti (topics) → Capitoli (chapters)**.  
+Two checklist files track progress:
 
-### Master Checkbox (per Argomento)
+### `Progress.md` — Master Checklist (per Argomento)
+Tracks only the **Argomenti**. One checkbox per argomento with three status fields.
 ```
 ## [ ] Argomento 1  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
 ## [ ] Argomento 2  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
 ```
 
-### Chapter Checkbox (per Capitolo, dentro ogni Argomento)
+### `Progress/<Argomento>.md` — Chapter Checklist (per Capitolo)
+Each argomento gets its own file tracking its **Capitoli**.
 ```
-### Argomento 1
 - [ ] Capitolo 1.1  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
 - [ ] Capitolo 1.2  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
+- [ ] Capitolo 1.3  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
 ```
 
 ### Tracked Fields
-- **Studiato** [ ] — marked by the **user** manually when they finish studying a topic/chapter.
+- **Studiato** [ ] — marked by the **user** manually when they finish studying.
 - **Memorizzato** [ ] — marked by the **AI agent** after verifying retention via Anki (card maturity/ reviews).
 - **Testing** [ ] — marked when the user has completed the related quizzes with satisfactory results.
 
 ### Flashcard Gating
-- **Do not export flashcards to Anki for topics the user has not marked as Studiato.**
-- Only generate and sync flashcards for chapters where `Studiato = [x]`. This prevents flooding Anki with cards for material the user hasn't reviewed yet.
+- **Do not export flashcards to Anki for argomenti the user has not marked as Studiato.**
+- Only generate and sync flashcards for chapters where `Studiato = [x]` in the argomento's chapter checklist. This prevents flooding Anki with cards for material the user hasn't reviewed yet.
 
 ## Tools and Companion Skills
 - Use **mermaid-export** to render and export diagrams.
@@ -197,23 +209,26 @@ Maintain a progress checklist in the project root (`Progress.md`) with two level
   - Tesseract (recommended) or EasyOCR
 
 ## Operating Steps (Checklist)
-1. Ask for chapter list (text in chat).
-2. Create `Input/`, `Output/` folders and `Progress.md`.
-3. Build the **master checklist** in `Progress.md` grouped by topics from the chapter list.
-4. For each chapter:
+1. Ask for the **course structure**: list of **Argomenti**, each with its **Capitoli**.
+2. Create `Input/`, `Output/`, `Progress/` folders.
+3. Build the **master checklist** `Progress.md` — one entry per argomento.
+4. For each argomento, build its **chapter checklist** `Progress/<Argomento>.md` — one entry per capitolo.
+5. For each capitolo:
    - Identify relevant lecture PDFs and exam pages.
    - Extract definitions and quiz items.
    - Build Quizzes.md, Definitions.md, Schematics.md, Flashcards.md.
    - Ensure every concept is referenced to a quiz or slide.
-5. Validate cross-mapping:
+6. Validate cross-mapping:
    - Each definition has at least one flashcard.
    - Schematics include references + quiz mapping + flashcard mapping.
-6. **Flashcard gating**: ask the user which topics they have **Studiato**. Only generate/export flashcards to Anki for those topics.
-7. After Anki sync, mark **Memorizzato** for cards that have matured.
-8. As the user completes quizzes, mark **Testing**.
-9. Repeat steps 4–8 for each new chapter as the user progresses.
+7. **Flashcard gating**: ask the user which **argomenti** they have **Studiato** in `Progress.md`. Only generate/export flashcards to Anki for chapters belonging to those argomenti.
+8. After Anki sync, mark **Memorizzato** for cards that have matured.
+9. As the user completes quizzes, mark **Testing**.
+10. Repeat steps 5–9 for each new capitolo as the user progresses.
 
 ## Notes
-- The **List of Chapters** is always user-provided in chat.
-- Do not proceed without that list.
+- The **course structure** (argomenti + capitoli) is always user-provided in chat.
+- Hierarchy reminder: **Corso → Argomenti → Capitoli**.
+- `Progress.md` tracks argomenti; `Progress/<Argomento>.md` tracks capitoli for that argomento.
+- Flashcards are only exported to Anki for argomenti where `Studiato = [x]`.
 - Keep file naming and casing consistent with the course’s folder conventions.
