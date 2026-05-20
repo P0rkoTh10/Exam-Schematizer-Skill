@@ -99,6 +99,17 @@ graph LR
 3. Ask the user for the **course structure**: a list of **Argomenti** (topics), each containing its **Capitoli** (chapters).
    - Example: `Argomento 1: Capitolo 1.1, Capitolo 1.2 | Argomento 2: Capitolo 2.1, Capitolo 2.2`
 4. Only proceed after the course structure is provided.
+5. Create a **`Sommario.md`** in the project root that indexes all argomenti and their capitoli at a glance.
+   ```
+   # Sommario — <Nome Corso>
+
+   - [ ] **Argomento 1**
+     - [ ] Capitolo 1.1
+     - [ ] Capitolo 1.2
+   - [ ] **Argomento 2**
+     - [ ] Capitolo 2.1
+     - [ ] Capitolo 2.2
+   ```
 
 ## Input/Output Structures
 
@@ -211,24 +222,25 @@ Each argomento gets its own file tracking its **Capitoli**.
 ## Operating Steps (Checklist)
 1. Ask for the **course structure**: list of **Argomenti**, each with its **Capitoli**.
 2. Create `Input/`, `Output/`, `Progress/` folders.
-3. Build the **master checklist** `Progress.md` — one entry per argomento.
-4. For each argomento, build its **chapter checklist** `Progress/<Argomento>.md` — one entry per capitolo.
-5. For each capitolo:
+3. Build **`Sommario.md`** with the full argomenti + capitoli index.
+4. Build the **master checklist** `Progress.md` — one entry per argomento.
+5. For each argomento, build its **chapter checklist** `Progress/<Argomento>.md` — one entry per capitolo.
+6. For each capitolo:
    - Identify relevant lecture PDFs and exam pages.
    - Extract definitions and quiz items.
    - Build Quizzes.md, Definitions.md, Schematics.md, Flashcards.md.
    - Ensure every concept is referenced to a quiz or slide.
-6. Validate cross-mapping:
+7. Validate cross-mapping:
    - Each definition has at least one flashcard.
    - Schematics include references + quiz mapping + flashcard mapping.
-7. **Flashcard gating**: ask the user which **argomenti** they have **Studiato** in `Progress.md`. Only generate/export flashcards to Anki for chapters belonging to those argomenti.
-8. After Anki sync, mark **Memorizzato** for cards that have matured.
-9. As the user completes quizzes, mark **Testing**.
-10. Repeat steps 5–9 for each new capitolo as the user progresses.
+8. **Flashcard gating**: ask the user which **argomenti** they have **Studiato** in `Progress.md`. Only generate/export flashcards to Anki for chapters belonging to those argomenti.
+9. After Anki sync, mark **Memorizzato** for cards that have matured.
+10. As the user completes quizzes, mark **Testing**.
+11. Repeat steps 6–10 for each new capitolo as the user progresses.
 
 ## Notes
 - The **course structure** (argomenti + capitoli) is always user-provided in chat.
 - Hierarchy reminder: **Corso → Argomenti → Capitoli**.
-- `Progress.md` tracks argomenti; `Progress/<Argomento>.md` tracks capitoli for that argomento.
+- `Sommario.md` is the course index; `Progress.md` tracks argomenti; `Progress/<Argomento>.md` tracks capitoli for that argomento.
 - Flashcards are only exported to Anki for argomenti where `Studiato = [x]`.
 - Keep file naming and casing consistent with the course’s folder conventions.
