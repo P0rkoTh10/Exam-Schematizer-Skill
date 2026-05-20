@@ -160,6 +160,32 @@ Output/
   Flashcard 3: A.2 → {A.2.1, A.2.2}
   ```
 
+## Progress Tracking Checklist
+
+Maintain a progress checklist in the project root (`Progress.md`) with two levels:
+
+### Master Checkbox (per Argomento)
+```
+## [ ] Argomento 1  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
+## [ ] Argomento 2  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
+```
+
+### Chapter Checkbox (per Capitolo, dentro ogni Argomento)
+```
+### Argomento 1
+- [ ] Capitolo 1.1  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
+- [ ] Capitolo 1.2  —  Studiato: [ ]  Memorizzato: [ ]  Testing: [ ]
+```
+
+### Tracked Fields
+- **Studiato** [ ] — marked by the **user** manually when they finish studying a topic/chapter.
+- **Memorizzato** [ ] — marked by the **AI agent** after verifying retention via Anki (card maturity/ reviews).
+- **Testing** [ ] — marked when the user has completed the related quizzes with satisfactory results.
+
+### Flashcard Gating
+- **Do not export flashcards to Anki for topics the user has not marked as Studiato.**
+- Only generate and sync flashcards for chapters where `Studiato = [x]`. This prevents flooding Anki with cards for material the user hasn't reviewed yet.
+
 ## Tools and Companion Skills
 - Use **mermaid-export** to render and export diagrams.
 - Use **anki** skill to create/verify Anki flashcards.
@@ -172,16 +198,20 @@ Output/
 
 ## Operating Steps (Checklist)
 1. Ask for chapter list (text in chat).
-2. Create Input/Output folders.
-3. For each chapter:
+2. Create `Input/`, `Output/` folders and `Progress.md`.
+3. Build the **master checklist** in `Progress.md` grouped by topics from the chapter list.
+4. For each chapter:
    - Identify relevant lecture PDFs and exam pages.
    - Extract definitions and quiz items.
    - Build Quizzes.md, Definitions.md, Schematics.md, Flashcards.md.
    - Ensure every concept is referenced to a quiz or slide.
-4. Validate cross-mapping:
+5. Validate cross-mapping:
    - Each definition has at least one flashcard.
    - Schematics include references + quiz mapping + flashcard mapping.
-5. If requested, export flashcards to Anki.
+6. **Flashcard gating**: ask the user which topics they have **Studiato**. Only generate/export flashcards to Anki for those topics.
+7. After Anki sync, mark **Memorizzato** for cards that have matured.
+8. As the user completes quizzes, mark **Testing**.
+9. Repeat steps 4–8 for each new chapter as the user progresses.
 
 ## Notes
 - The **List of Chapters** is always user-provided in chat.
