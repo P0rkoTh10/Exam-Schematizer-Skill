@@ -107,6 +107,27 @@ Output/
       ...
 ```
 
+## Regole per i File di Output
+
+### Schematics.md
+- L'ordine **non** deve seguire esattamente le slide; usa un ordine **top-down concettuale**.
+- Ogni elemento deve includere:
+  - **Definizione** — includi anche un **grafico/tabella** se aiuta a chiarire il concetto. Se un grafico esiste già nelle slide, copialo direttamente (generalo via Mermaid, non come immagine).
+  - **Reference** (lezione o quiz)
+  - **Quiz mapping** (se applicabile)
+  - **Flashcard mapping**
+- Niente contenuti inventati. Ogni affermazione deve essere tracciabile a un quiz o slide.
+- Riferimenti espliciti nel formato: `Lectures\file.pdf`, p. X (o `Exams\file.pdf`, p. X).
+
+### Quizzes.md
+Ogni quiz deve includere: Title, Quiz text, Source (file), Answer, Explanation, Reference (page).
+
+### Definitions.md
+Il testo deve corrispondere alle slide. Aggiungere sempre i riferimenti.
+
+### Flashcards.md
+Ogni carta richiede: title, id (unico), back (risposta). Allineato con definizioni e schemi.
+
 ## Dipendenze Esterne
 
 - **Anki + AnkiConnect** per sincronizzare flashcard automaticamente

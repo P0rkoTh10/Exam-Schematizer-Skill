@@ -119,8 +119,9 @@ Output/
 
 ## File Content Rules
 ### Schematics.md
+- The order does **not** have to follow the slides exactly; use a **top-down conceptual** order.
 - Each element must include:
-  - Definition
+  - Definition — also include a **graph/table** if it helps clarify or simplify the concept. If a graph already exists in the lecture slides, copy it directly (generate it via Mermaid, not as an image).
   - Reference (lecture or quiz)
   - Quiz mapping (if applicable)
   - Flashcard mapping
