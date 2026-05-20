@@ -5,14 +5,16 @@ description: Use when the user asks to categorize/schematize exam and lecture co
 
 # Exam Schematizer Skill
 
-Create a repeatable workflow to categorize and schematize a generic course’s exams and lectures. The course is divided into **Argomenti** (topics), each containing **Capitoli** (chapters). Output is structured per chapter (Quizzes, Definitions, Schematics, Flashcards), with traceable references to quizzes or lecture slides.
+Create a repeatable workflow to categorize and schematize a generic course’s exams and lectures. The course is divided into **Argomenti** (topics), each containing **Capitoli** (chapters). Output is structured per argomento (Quizzes, Definitions, Schematics, Flashcards), with internal division by capitoli and traceable references to quizzes or lecture slides.
 
 ## When to Use
-- User asks to organize exam/lecture collections first by argomento, then by capitolo.
+- User asks to organize exam/lecture collections by argomento, with internal division by capitoli.
 - User wants a reusable workflow like the one in this project.
 - User asks for a skill to create Inputs/Outputs, maps, or flashcards.
 
-## Required Workflow (Mermaid)
+## Required Workflow
+
+### Generale
 
 ```mermaid
 graph LR
@@ -21,57 +23,62 @@ graph LR
     AIAgent --> Output
 ```
 
+### Input / Output
+
 ```mermaid
 graph LR
-    %% Sezione Input
-    Input --> Exams_In[- Exams]
+    %% Input
+    Input --> Exams[- Exams]
     Input --> Lectures[- Lectures]
-    Input --> List[- Argomenti + Capitoli]
+    Input --> Argomenti[- Lista Argomenti]
 
-    %% Flusso Principale
-    Output --> Exams_Out(Exams)
+    %% Output
+    Output --> Out_Exams(Exams)
+    Out_Exams --> A1(Argomento 1)
+    Out_Exams --> A2(Argomento 2)
+    Out_Exams --> A3(Argomento 3...)
 
-    %% Argomenti e relativi Capitoli
-    Exams_Out --> A1(Argomento 1)
-    A1 --> C1_1(Capitolo 1.1)
-    A1 --> C1_2(Capitolo 1.2)
-    A1 --> C1_3(Capitolo 1.3...)
-
-    Exams_Out --> A2(Argomento 2)
-    A2 --> C2_1(Capitolo 2.1)
-    A2 --> C2_2(Capitolo 2.2...)
-
-    %% File di output per ogni capitolo
-    C1_1 --> Q[Quizzes.md]
-    C1_1 --> D[Definitions.md]
-    C1_1 --> S[Schematics.md]
-    C1_1 --> F[FlashCards.md]
+    %% File per Argomento 1
+    A1 --> Q[Quizzes.md]
+    A1 --> D[Definitions.md]
+    A1 --> S[Schematics.md]
+    A1 --> F[FlashCards.md]
 
     %% Destinazione finale
     F --> Anki((Anki))
 ```
 
+### Struttura Schematics.md
+
 ```mermaid
 graph LR
-    %% Struttura principale di Schematics.md
-    Schematics[Schematics.md] --> E1(Elemento 1)
-    Schematics --> E2(Elemento 2)
-    Schematics --> E3(Elemento 3...)
+    Schematics[Schematics.md] --> C1(Capitolo 1)
+    Schematics --> C2(Capitolo 2)
+    Schematics --> C3(Capitolo 3...)
 
-    %% Sotto-elementi dell'Elemento 1
-    E1 --> Def[Definizione]
-    E1 --> Ref[Reference]
-    E1 --> QZ[Quiz]
-    E1 --> FC[Flash card]
-
-    %% Esplosione dei campi del Quiz
-    QZ --> Title[title]
-    QZ --> Quiz_Text[quiz.]
-    QZ --> Source[Source]
-    QZ --> Answer[Answer]
-    QZ --> Expl[Explaination]
-    QZ --> Ref_Quiz[Reference]
+    C1 --> Def[Definizione]
+    C1 --> Ref[Reference]
+    C1 --> Graph[Grafico / Tabella]
+    C1 --> FC_MAP[Flashcard mapping]
 ```
+
+### Struttura Quizzes.md
+
+```mermaid
+graph LR
+    Quizzes[Quizzes.md] --> Q1(Quiz 1)
+    Quizzes --> Q2(Quiz 2)
+    Quizzes --> Q3(Quiz 3...)
+
+    Q1 --> Title[title]
+    Q1 --> Text[quiz.]
+    Q1 --> Source[Source]
+    Q1 --> Answer[Answer]
+    Q1 --> Expl[Explaination]
+    Q1 --> Ref[Reference]
+```
+
+### Struttura Flashcards.md
 
 ```mermaid
 graph LR
@@ -79,36 +86,32 @@ graph LR
     FC_MD --> FC2(Flashcard 2)
     FC_MD --> FC3(Flashcard 3...)
 
-    %% Proprieta per Flashcard 1
     FC1 --> T1[title]
     FC1 --> I1[id]
     FC1 --> B1[back]
 
-    %% Proprieta per Flashcard 2
     FC2 --> T2[title]
     FC2 --> I2[id]
     FC2 --> B2[back]
 
-    %% Stile opzionale per evidenziare il file principale
     style FC_MD fill:#f9f9f9,stroke:#333,stroke-width:2px
 ```
 
 ## First Run Behavior
 1. Create empty folders `Input/` and `Output/` in the project root.
 2. Ask the user to fill `Input/Exams/` and `Input/Lectures/`.
-3. Ask the user for the **course structure**: a list of **Argomenti** (topics), each containing its **Capitoli** (chapters).
-   - Example: `Argomento 1: Capitolo 1.1, Capitolo 1.2 | Argomento 2: Capitolo 2.1, Capitolo 2.2`
-4. Only proceed after the course structure is provided.
-5. Create a **`Sommario.md`** in the project root that indexes all argomenti and their capitoli at a glance.
+3. Ask the user for the **list of Argomenti** (topics). Capitoli are extracted later from the lecture materials.
+   - Example: `Argomento 1, Argomento 2, Argomento 3`
+4. Only proceed after the argomenti list is provided.
+5. Create a **`Sommario.md`** in the project root that indexes all argomenti. Capitoli are added as they are discovered from the materials.
    ```
    # Sommario — <Nome Corso>
 
    - [ ] **Argomento 1**
-     - [ ] Capitolo 1.1
+     - [ ] Capitolo 1.1   <!-- discovered from lectures -->
      - [ ] Capitolo 1.2
    - [ ] **Argomento 2**
      - [ ] Capitolo 2.1
-     - [ ] Capitolo 2.2
    ```
 
 ## Input/Output Structures
@@ -125,25 +128,21 @@ Input/
 Output/
   Exams/
     <Argomento 1>/
-      <Capitolo 1.1>/
-        Quizzes.md
-        Definitions.md
-        Schematics.md
-        Flashcards.md
-      <Capitolo 1.2>/
-        ...
+      Quizzes.md
+      Definitions.md
+      Schematics.md
+      Flashcards.md
     <Argomento 2>/
-      <Capitolo 2.1>/
-        ...
+      ...
 ```
 
 ## File Content Rules
 ### Schematics.md
-- The order does **not** have to follow the slides exactly; use a **top-down conceptual** order.
-- Each element must include:
+- Divided by **Capitoli** (not by generic elements).
+- Within each capitolo, the order does **not** have to follow the slides exactly; use a **top-down conceptual** order.
+- Each capitolo must include:
   - Definition — also include a **graph/table** if it helps clarify or simplify the concept. If a graph already exists in the lecture slides, copy the **image** directly. If it doesn't exist, generate it via Mermaid.
-  - Reference (lecture or quiz)
-  - Quiz mapping (if applicable)
+  - Reference (lecture page)
   - Flashcard mapping
 - **No invented content.** Every statement must be traceable to **quiz** or **lecture slides**.
 - Prefer explicit references in the format: `Lectures\file.pdf`, p. X (or `Exams\file.pdf`, p. X).
@@ -220,27 +219,30 @@ Each argomento gets its own file tracking its **Capitoli**.
   - Tesseract (recommended) or EasyOCR
 
 ## Operating Steps (Checklist)
-1. Ask for the **course structure**: list of **Argomenti**, each with its **Capitoli**.
+1. Ask for the **list of Argomenti**.
 2. Create `Input/`, `Output/`, `Progress/` folders.
-3. Build **`Sommario.md`** with the full argomenti + capitoli index.
+3. Build **`Sommario.md`** with the argomenti (capitoli are added as discovered).
 4. Build the **master checklist** `Progress.md` — one entry per argomento.
-5. For each argomento, build its **chapter checklist** `Progress/<Argomento>.md` — one entry per capitolo.
-6. For each capitolo:
-   - Identify relevant lecture PDFs and exam pages.
-   - Extract definitions and quiz items.
-   - Build Quizzes.md, Definitions.md, Schematics.md, Flashcards.md.
-   - Ensure every concept is referenced to a quiz or slide.
-7. Validate cross-mapping:
+5. For each argomento:
+   - Analyze lectures and exams to identify its **Capitoli**.
+   - Add the discovered capitoli to `Sommario.md`.
+   - Build its **chapter checklist** `Progress/<Argomento>.md` — one entry per capitolo.
+   - For each capitolo:
+     - Extract definitions and quiz items.
+     - Build Quizzes.md, Definitions.md, Schematics.md, Flashcards.md.
+     - Ensure every concept is referenced to a quiz or slide.
+6. Validate cross-mapping:
    - Each definition has at least one flashcard.
-   - Schematics include references + quiz mapping + flashcard mapping.
-8. **Flashcard gating**: ask the user which **argomenti** they have **Studiato** in `Progress.md`. Only generate/export flashcards to Anki for chapters belonging to those argomenti.
-9. After Anki sync, mark **Memorizzato** for cards that have matured.
-10. As the user completes quizzes, mark **Testing**.
-11. Repeat steps 6–10 for each new capitolo as the user progresses.
+   - Schematics include references + flashcard mapping.
+7. **Flashcard gating**: ask the user which **argomenti** they have **Studiato** in `Progress.md`. Only generate/export flashcards to Anki for chapters belonging to those argomenti.
+8. After Anki sync, mark **Memorizzato** for cards that have matured.
+9. As the user completes quizzes, mark **Testing**.
+10. Repeat step 5 for each new argomento as the user progresses.
 
 ## Notes
-- The **course structure** (argomenti + capitoli) is always user-provided in chat.
+- Only the **list of argomenti** is user-provided in chat; **capitoli** are extracted from the lecture materials.
 - Hierarchy reminder: **Corso → Argomenti → Capitoli**.
 - `Sommario.md` is the course index; `Progress.md` tracks argomenti; `Progress/<Argomento>.md` tracks capitoli for that argomento.
+- Output folder is organized by argomento only; the capitoli division lives **inside** the files.
 - Flashcards are only exported to Anki for argomenti where `Studiato = [x]`.
 - Keep file naming and casing consistent with the course’s folder conventions.
